@@ -151,4 +151,50 @@ class AuthController extends Controller
             'message' => 'Successfully logged out'
         ]);
     }
+
+    public function me()
+    {
+        $user = Auth::user();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'email' => $user->email,
+                'avatar' => $user->avatar,
+                'role' => $user->role,
+                'created_at' => $user->created_at->toISOString(),
+            ]
+        ]);
+    }
+
+    public function refresh()
+    {
+        try {
+            $token = JWTAuth::refresh();
+            $user = Auth::user();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'user' => [
+                        'id' => $user->id,
+                        'username' => $user->username,
+                        'email' => $user->email,
+                        'avatar' => $user->avatar,
+                        'role' => $user->role,
+                        'created_at' => $user->created_at->toISOString(),
+                    ],
+                    'token' => $token
+                ],
+                'message' => 'Token refreshed successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token refresh failed'
+            ], 401);
+        }
+    }
 }
